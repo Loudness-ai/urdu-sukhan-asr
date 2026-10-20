@@ -51,7 +51,7 @@ Public test clips transcribed by Whisper large-v3-turbo and by Urdu Sukhan ASR v
 
 **1. Urdu then English (Common Voice + FLEURS)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/2b1c667f-33f9-4aaa-a29f-eb17965ff1e3
+https://github.com/user-attachments/assets/ea77c418-8699-4b19-b3a2-2ec33fc94589
 
 | | Transcript | Result |
 |---|---|---|
@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/2b1c667f-33f9-4aaa-a29f-eb17965ff1e3
 
 **2. Urdu then English (Common Voice + FLEURS)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/3390501a-0cc6-4cd8-b3b8-8aec00771670
+https://github.com/user-attachments/assets/ef475756-9c19-4a18-8ee1-e7018ebd511a
 
 | | Transcript | Result |
 |---|---|---|
@@ -73,7 +73,7 @@ https://github.com/user-attachments/assets/3390501a-0cc6-4cd8-b3b8-8aec00771670
 
 **3. One- or two-word reply (IndicVoices)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/6a54f2ad-6ae2-468a-8e46-1eaf58f066e9
+https://github.com/user-attachments/assets/81ab5518-f7d3-4713-8d29-03d74eacb000
 
 | | Transcript | Result |
 |---|---|---|
@@ -84,7 +84,7 @@ https://github.com/user-attachments/assets/6a54f2ad-6ae2-468a-8e46-1eaf58f066e9
 
 **4. One- or two-word reply (IndicVoices)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/e16a7bcc-0fe1-4e1d-b769-43d055545edf
+https://github.com/user-attachments/assets/c136e039-84a4-41a3-9d7b-7e941203db86
 
 | | Transcript | Result |
 |---|---|---|
@@ -95,7 +95,7 @@ https://github.com/user-attachments/assets/e16a7bcc-0fe1-4e1d-b769-43d055545edf
 
 **5. One- or two-word reply (IndicVoices)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/a1796e2e-9c62-4c81-a241-14d9311ecbdf
+https://github.com/user-attachments/assets/9ef64edf-f723-48ad-b974-0c6ed3c11501
 
 | | Transcript | Result |
 |---|---|---|
@@ -106,7 +106,7 @@ https://github.com/user-attachments/assets/a1796e2e-9c62-4c81-a241-14d9311ecbdf
 
 **6. IndicVoices, conversational** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/9929ca71-ec8b-4c46-ae83-f8bda523e088
+https://github.com/user-attachments/assets/864bca94-a574-4970-bd4d-e8fd4df5cee8
 
 | | Transcript | Result |
 |---|---|---|
@@ -117,7 +117,7 @@ https://github.com/user-attachments/assets/9929ca71-ec8b-4c46-ae83-f8bda523e088
 
 **7. Quiet speech (a Common Voice clip, 30 dB softer)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/b6502b7d-cc97-413d-bb2e-4c1dc1cec6f1
+https://github.com/user-attachments/assets/088b28c4-ce90-4543-86b7-ce91340befc5
 
 | | Transcript | Result |
 |---|---|---|
@@ -128,7 +128,7 @@ https://github.com/user-attachments/assets/b6502b7d-cc97-413d-bb2e-4c1dc1cec6f1
 
 **8. Phone line (a Common Voice clip)** · ✅ Urdu Sukhan ASR better
 
-https://github.com/user-attachments/assets/5d95fd96-3d1f-4af4-9c56-8fc1a8e38e3f
+https://github.com/user-attachments/assets/9111ea1f-35c5-4be5-93be-c4656eaeb4be
 
 | | Transcript | Result |
 |---|---|---|
@@ -139,7 +139,7 @@ https://github.com/user-attachments/assets/5d95fd96-3d1f-4af4-9c56-8fc1a8e38e3f
 
 **9. UrduSpeech · one of the four clips where ours did worse** · ❌ Urdu Sukhan ASR worse
 
-https://github.com/user-attachments/assets/4ea21aee-7ca3-4304-813c-8f89b63797ee
+https://github.com/user-attachments/assets/515ecb6d-4796-4f28-9ad5-feeba4c39826
 
 | | Transcript | Result |
 |---|---|---|
@@ -152,7 +152,7 @@ https://github.com/user-attachments/assets/4ea21aee-7ca3-4304-813c-8f89b63797ee
 
 *Faint hiss and hum*
 
-https://github.com/user-attachments/assets/204095bd-53ed-47a4-a442-4fc8ded7c792
+https://github.com/user-attachments/assets/b8745c28-ad13-4f01-82b7-af46638222f5
 
 | | default | blank allowed |
 |---|---|---|
@@ -161,7 +161,7 @@ https://github.com/user-attachments/assets/204095bd-53ed-47a4-a442-4fc8ded7c792
 
 *Noise (MUSAN)*
 
-https://github.com/user-attachments/assets/35303284-cbf1-4354-bd5d-311cd6299b3c
+https://github.com/user-attachments/assets/4e4684e6-370f-4184-bfd9-9d8733993342
 
 | | default | blank allowed |
 |---|---|---|
