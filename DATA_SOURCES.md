@@ -4,7 +4,7 @@ Every dataset used to train Urdu Sukhan ASR v1, with its licence and the credit 
 
 | Dataset | What it is | Licence | Credit | Clips used |
 |---|---|---|---|---:|
-| Audiobook recordings and transcripts by Asad Shehzad | Two audiobooks; transcripts drafted by earlier models and proofread by the author | the author's own material | Asad Shehzad | 521 |
+| Two audiobooks | Read by two narrators; transcripts drafted by earlier models and proofread by Asad Shehzad | not redistributed | transcripts: Asad Shehzad | 521 |
 | [IndicVoices](https://huggingface.co/datasets/ai4bharat/IndicVoices), Urdu | Read and conversational speech from many speakers (AI4Bharat) | CC BY 4.0 | AI4Bharat | 20,000 |
 | Common Voice Urdu (Kaggle repack "Urdu dataset 20000") | Read sentences, many speakers (Mozilla) | CC0 | Mozilla Common Voice (courtesy) | 12,000 |
 | [UAT](https://huggingface.co/datasets/mahwizzzz/UAT) | Audio from books; its machine-made transcripts were replaced by our own labels (confidence ≥ 0.85) | no public licence; used by agreement with its developers | the UAT authors | 10,000 |

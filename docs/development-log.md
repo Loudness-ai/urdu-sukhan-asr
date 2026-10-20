@@ -130,7 +130,7 @@ the rented RTX A4000 machine; “cloud server” is the 12-core AMD machine used
 
 1. Goals set: better Urdu, lower memory, faster on CPUs and iPhones.
 2. whisper.cpp, normaliser, proofreading tool and scorer built; base-model baseline; house style adopted.
-3. The author’s two audiobooks cut into 1,037 clips and drafted; proofreading and the five-clip review loop start.
+3. The two audiobooks cut into 1,037 clips and drafted; proofreading and the five-clip review loop start.
 4. Round 1 on the laptop (a first attempt stopped by the disk guard).
 5. Round 2; timestamp bug found and fixed in decoding.
 6. Round 3 with timestamp labels; live test page on the laptop.

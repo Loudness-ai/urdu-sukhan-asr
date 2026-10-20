@@ -330,7 +330,7 @@ python scripts/export_ggml.py --base models/hf/whisper-large-v3-turbo --model mo
     --name urdu-sukhan-asr-v1 --quant q8_0 q5_0 q4_0
 ```
 
-The author's audiobook recordings and the transcribed UAT audio are not public, so an exact reproduction is not
+The audiobook recordings and the transcribed UAT audio are not public, so an exact reproduction is not
 possible from public data alone; training without them gives a close but different model. What we would change in a next round is under
 [Next version](#next-version).
 
@@ -392,7 +392,7 @@ Licence: [CC BY-NC 4.0](LICENSE) for the code and the model, non-commercial use 
 Hugging Face, where access is approved on request. For commercial use, [contact us](https://loudness.ai/contact-us/). OpenAI's MIT notice
 for Whisper is in [`NOTICE.md`](NOTICE.md).
 
-Developed by Asad Shehzad, Loudness.ai. Audiobook recordings and proofread transcripts by Asad Shehzad. Built on
+Developed by Asad Shehzad, Loudness.ai. Audiobook transcripts proofread by Asad Shehzad. Built on
 OpenAI Whisper large-v3-turbo. Data from AI4Bharat (IndicVoices, Rasa), Mozilla Common Voice, Google FLEURS,
 Muhammad Noman – nzg73, the UAT authors and MUSAN; see [`DATA_SOURCES.md`](DATA_SOURCES.md). Inference with
 [whisper.cpp](https://github.com/ggml-org/whisper.cpp), [faster-whisper](https://github.com/SYSTRAN/faster-whisper) and

@@ -29,4 +29,4 @@ SOFTWARE.
 
 Training data credits: AI4Bharat (IndicVoices, CC BY 4.0; Rasa via UrduSpeech, CC BY 4.0), Mozilla Common Voice
 (CC0), Google FLEURS (CC BY 4.0), Muhammad Noman – nzg73 (Urdu_Audio-Realistic, its own licence), the UAT authors,
-MUSAN by Snyder, Chen and Povey (2015, CC BY 4.0), and audiobook recordings by Asad Shehzad.
+MUSAN by Snyder, Chen and Povey (2015, CC BY 4.0), and two audiobooks read by two narrators, with transcripts proofread by Asad Shehzad.
