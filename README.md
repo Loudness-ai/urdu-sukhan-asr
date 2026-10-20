@@ -199,8 +199,11 @@ Pick the runtime for your hardware:
 Transformers on a CPU works but is slow (about 10 times slower than real time on a 12-core cloud server); use
 whisper.cpp or faster-whisper there.
 
+Use Python 3.12: some of these packages have no ready-made wheels for newer Python versions on macOS yet.
+
 ```bash
-pip install -r examples/requirements.txt   # Python 3.12
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r examples/requirements.txt
 ```
 
 **whisper.cpp.** The script builds whisper.cpp v1.9.5 with a one-line
@@ -210,7 +213,11 @@ Silero voice detector, and transcribes with the recommended settings:
 ```bash
 bash examples/whisper_cpp.sh speech.wav                         # q8_0
 QUANT=q4_0 THREADS=8 bash examples/whisper_cpp.sh speech.mp3    # fastest on x86 servers
+VAD=0 bash examples/whisper_cpp.sh urdu-then-english.wav        # without the voice detector
 ```
+
+The voice detector skips non-speech but can drop faint speech, such as quiet English after Urdu; `VAD=0` keeps it,
+and silence still gives no text.
 
 Or with your own whisper.cpp build:
 
@@ -223,6 +230,7 @@ whisper-cli -m ggml/ggml-urdu-sukhan-asr-v1-q8_0.bin -l ur -bs 5 -nt -mc 0 -f sp
 
 ```bash
 python examples/transcribe_faster_whisper.py lecture.wav --timestamps
+python examples/transcribe_faster_whisper.py urdu-then-english.wav --no-vad   # keeps faint speech
 ```
 
 **Transformers**, on an NVIDIA GPU, an Apple GPU or the CPU; any length of audio:

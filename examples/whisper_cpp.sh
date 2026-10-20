@@ -3,18 +3,22 @@
 #
 #   bash examples/whisper_cpp.sh speech.wav
 #   QUANT=q4_0 THREADS=8 bash examples/whisper_cpp.sh interview.mp3
+#   VAD=0 bash examples/whisper_cpp.sh urdu-then-english.wav
 #
 # The first run builds whisper.cpp v1.9.5 with a small patch that adds the -nsb switch (allow an empty result, so
 # silence gives no text), and downloads the model and the Silero voice detector into $DIR. Needs git, cmake, a C++
 # compiler and the Hugging Face CLI (pip install huggingface_hub). Reads WAV, FLAC, MP3 and OGG.
 #
 # QUANT: q8_0 (default; best on Apple Silicon), q4_0 (fastest on x86 servers), q5_0.
+# VAD: 1 (default) skips non-speech with the Silero voice detector; 0 turns it off, which keeps faint speech the
+# detector can drop, such as quiet English after Urdu. Silence still gives no text, thanks to -nsb.
 set -euo pipefail
 
 AUDIO=$(cd "$(dirname "${1:?usage: whisper_cpp.sh AUDIO_FILE}")" && pwd)/$(basename "$1")
 QUANT=${QUANT:-q8_0}
 THREADS=${THREADS:-8}
 LANGUAGE=${LANGUAGE:-ur}   # ur, en, or auto (auto runs the encoder twice per window)
+VAD=${VAD:-1}
 DIR=${DIR:-$HOME/urdu-sukhan-asr}
 HERE=$(cd "$(dirname "$0")" && pwd)
 
@@ -30,10 +34,15 @@ fi
 
 MODEL=models/ggml/ggml-urdu-sukhan-asr-v1-$QUANT.bin
 [ -f "$MODEL" ] || hf download Loudness-ai/urdu-sukhan-asr-v1 "ggml/ggml-urdu-sukhan-asr-v1-$QUANT.bin" --local-dir models
-VAD=whisper.cpp/models/ggml-silero-v5.1.2.bin
-[ -f "$VAD" ] || bash whisper.cpp/models/download-vad-model.sh silero-v5.1.2 whisper.cpp/models > /dev/null
+VAD_ARGS=()
+if [ "$VAD" = 1 ]; then
+  VAD_MODEL=whisper.cpp/models/ggml-silero-v5.1.2.bin
+  [ -f "$VAD_MODEL" ] || bash whisper.cpp/models/download-vad-model.sh silero-v5.1.2 whisper.cpp/models > /dev/null
+  VAD_ARGS=(--vad -vm "$VAD_MODEL" -vsd 2000 -vp 300)
+fi
 
 # -bs 5: beam search      -nt: no timestamps      -mc 0: no text carried between windows
 # -nsb: silence gives no text      --vad: skip non-speech; -vsd/-vp keep short pauses inside speech
+# (${VAD_ARGS[@]+...} keeps an empty list working in the bash 3.2 that macOS ships)
 whisper.cpp/build/bin/whisper-cli -m "$MODEL" -l "$LANGUAGE" -t "$THREADS" -bs 5 -nt -mc 0 -nsb \
-  --vad -vm "$VAD" -vsd 2000 -vp 300 -f "$AUDIO" 2> whisper-cli.log
+  ${VAD_ARGS[@]+"${VAD_ARGS[@]}"} -f "$AUDIO" 2> whisper-cli.log

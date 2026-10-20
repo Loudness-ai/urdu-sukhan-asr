@@ -1,4 +1,6 @@
 # Inference only (tested on Ubuntu 24.04 and macOS, Python 3.12, October 2026).
+# Use Python 3.12 (python3.12 -m venv .venv): ctranslate2, soxr, av and onnxruntime have no ready-made macOS wheels
+# for Python 3.13 and later yet, so installing on a newer Python fails.
 # For a CPU-only Linux machine install torch from https://download.pytorch.org/whl/cpu to save space.
 torch==2.14.1
 transformers==5.20.2

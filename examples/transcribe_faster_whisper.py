@@ -2,9 +2,11 @@
 
     python examples/transcribe_faster_whisper.py recording.wav
     python examples/transcribe_faster_whisper.py lecture.flac --batch-size 8 --timestamps
+    python examples/transcribe_faster_whisper.py urdu-then-english.wav --no-vad
 
 Downloads only the `ctranslate2/` folder of the model the first time. The Silero voice detector cuts the audio into
-speech pieces, which are transcribed in batches; this is the fastest way to transcribe long recordings on a CPU.
+speech pieces, which are transcribed in batches; this is the fastest way to transcribe long recordings on a CPU. The detector can drop faint speech, such as quiet
+English after Urdu; --no-vad transcribes every 30-second window instead. Silence still gives no text either way.
 Uses int8 on CPUs and float16 on NVIDIA GPUs.
 """
 import argparse
@@ -37,6 +39,8 @@ def main():
     ap.add_argument("--threads", type=int, default=8, help="CPU threads; leave some cores free on a shared server")
     ap.add_argument("--device", default="auto", help="cpu, cuda or auto")
     ap.add_argument("--timestamps", action="store_true", help="print start and end time of each piece")
+    ap.add_argument("--no-vad", action="store_true",
+                    help="no voice detector: keeps faint speech it can drop, such as quiet English after Urdu")
     args = ap.parse_args()
 
     path = args.model
@@ -53,7 +57,8 @@ def main():
     audio = load_audio(args.audio)
     start = time.time()
     segments, _ = pipe.transcribe(audio, language=None if args.language == "none" else args.language,
-                                  beam_size=args.beams, batch_size=args.batch_size, vad_filter=True,
+                                  beam_size=args.beams, batch_size=args.batch_size, vad_filter=not args.no_vad,
+                                  suppress_blank=False,  # silence gives no text
                                   without_timestamps=not args.timestamps, condition_on_previous_text=False)
     for seg in segments:  # transcription happens while iterating
         if args.timestamps:
