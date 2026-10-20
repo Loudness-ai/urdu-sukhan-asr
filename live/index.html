@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live test</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a66; --line: #e3e1dc;
+    --accent: #0f6e56; --accent-ink: #ffffff; --rec: #c4321e; --rec-ink: #ffffff; --soft: #eeece7;
+    --low: #f8d4cf; --low-ink: #8a1c10;
+    --urdu: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Geeza Pro", serif;
+    --naskh: "Noto Naskh Arabic", "Geeza Pro", "Damascus", "Arial", sans-serif;
+    --font: var(--naskh);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --card: #201f1d; --ink: #ecebe7; --muted: #9a9892; --line: #34322f;
+      --accent: #3fb68f; --accent-ink: #0d1a15; --rec: #e5574a; --rec-ink: #1a0b09; --soft: #2a2927;
+      --low: #5a2620; --low-ink: #ffc9c0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  .spacer { flex: 1; }
+  label.stat { color: var(--muted); font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+  select, button, input { font: inherit; }
+  select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); max-width: 100%; }
+  .pill { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .pill.ok { color: var(--accent); border-color: var(--accent); }
+  .pill.busy { color: var(--ink); }
+  .pill.err { color: var(--low-ink); background: var(--low); border-color: transparent; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 5px 9px; cursor: pointer; font-size: 13px; }
+  .seg button.on { background: var(--ink); color: var(--bg); }
+  main { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .control { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; }
+  .rec { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 99px; padding: 12px 22px; font-weight: 600; font-size: 16px;
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .rec .dot { width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
+  .rec.on { background: var(--rec); color: var(--rec-ink); }
+  .rec.on .dot { border-radius: 2px; }
+  .rec:disabled { opacity: .5; cursor: default; }
+  .meter { flex: 1 1 200px; min-width: 140px; height: 10px; border-radius: 99px; background: var(--soft); overflow: hidden; position: relative; }
+  .meter > div { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--muted); transition: width .06s linear; }
+  .meter.speech > div { background: var(--accent); }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 6px 11px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .btn:hover { border-color: var(--muted); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .file { position: relative; overflow: hidden; }
+  .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .summary { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 13px; margin: 18px 2px 10px; align-items: center; }
+  .summary b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .phrase { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+  .take + .take { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 8px; }
+  .text { font-family: var(--font); font-size: 24px; line-height: 2.1; direction: rtl; text-align: right; overflow-wrap: anywhere; }
+  .text.ltr { direction: ltr; text-align: left; font-family: inherit; font-size: 19px; line-height: 1.6; }
+  .meta .warn { color: var(--low-ink); }
+  .text.pending { color: var(--muted); font-family: inherit; font-size: 14px; line-height: 1.6; direction: ltr; text-align: left; }
+  .text.err { color: var(--low-ink); font-family: inherit; font-size: 14px; direction: ltr; text-align: left; }
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .meta .model { color: var(--ink); }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .notice { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--low); color: var(--low-ink); font-size: 13px; }
+  @media (max-width: 600px) { header { padding: 12px 16px; } main { padding: 16px 16px 40px; } .card { padding: 14px; } .text { font-size: 21px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Live test</h1>
+  <label class="stat">Model <select id="model"></select></label>
+  <span class="pill" id="status">Connecting…</span>
+  <span class="spacer"></span>
+  <span class="seg" id="font"><button data-v="naskh">Naskh</button><button data-v="urdu">Nastaliq</button></span>
+</header>
+
+<main>
+  <section class="card">
+    <div class="control">
+      <button class="rec" id="rec" disabled><span class="dot"></span><span id="rec-label">Start</span></button>
+      <div class="meter" id="meter" title="Microphone level. Green means speech."><div></div></div>
+    </div>
+    <div class="hint">
+      <span>Speak Urdu. Text appears a few seconds after you pause.</span>
+      <span class="btn file">Try an audio file<input type="file" id="file" accept="audio/*,video/*"></span>
+      <span><kbd>Space</kbd> start or stop</span>
+    </div>
+    <div class="notice" id="notice" hidden></div>
+  </section>
+
+  <div class="summary" id="summary" hidden>
+    <span>Phrases <b id="s-n">0</b></span>
+    <span>Audio <b id="s-audio">0 s</b></span>
+    <span>Average speed <b id="s-speed">–</b></span>
+    <span class="spacer"></span>
+    <button class="btn" id="copy-all">Copy all text</button>
+    <button class="btn" id="clear">Clear</button>
+  </div>
+  <div class="list" id="list"><div class="empty" id="empty">Nothing yet. Press Start and say a sentence.</div></div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const SR = 16000;
+const store = { get(k, d) { try { const v = localStorage.getItem("live." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+                set(k, v) { try { localStorage.setItem("live." + k, JSON.stringify(v)); } catch {} } };
+
+// ---- server: one request at a time, in order (model loads and transcriptions share the GPU) ----
+let chain = Promise.resolve();
+const serial = (fn) => (chain = chain.then(fn, fn));
+let models = [], loaded = null;
+
+function setStatus(text, kind) { const s = $("status"); s.textContent = text; s.className = "pill " + (kind || ""); }
+
+async function loadModel(m) {
+  if (loaded && loaded.path === m.path) return;
+  setStatus("Loading " + m.label + "…", "busy");
+  const fd = new FormData(); fd.append("model", m.path);
+  const r = await fetch("/load", { method: "POST", body: fd });
+  const msg = await r.text();
+  if (!r.ok || /fail|error/i.test(msg)) { setStatus("Couldn't load model", "err"); throw new Error(msg); }
+  loaded = m;
+  setStatus(m.label + " ready", "ok");
+}
+
+// One decode. language: null = let the model detect it, or "ur" / "en".
+async function infer(wav, language) {
+  const fd = new FormData();
+  fd.append("file", wav, "phrase.wav");
+  fd.append("response_format", "verbose_json");
+  if (language) fd.append("language", language);
+  const r = await fetch("/inference", { method: "POST", body: fd });
+  if (!r.ok) throw new Error("server said " + r.status);
+  const j = await r.json();
+  const probs = Object.entries(j.language_probabilities || {}).sort((a, b) => b[1] - a[1]);
+  return { text: (j.text || "").trim(), lang: language || (probs[0] ? probs[0][0] : "ur") };
+}
+
+// Runaway output: the same 1-6 words repeated 5+ times in a row (people really say "جی جی جی", so three
+// isn't a loop; runaway output repeats until the token limit). Returns where the repeats start, or -1.
+const LOOP_REPEATS = 5;
+function loopStart(text) {
+  const w = text.split(/\s+/).filter(Boolean);
+  for (let n = 1; n <= 6; n++)
+    for (let i = 0; i + LOOP_REPEATS * n <= w.length; i++) {
+      const a = w.slice(i, i + n).join(" ");
+      let k = 1;
+      while (k < LOOP_REPEATS && w.slice(i + k * n, i + (k + 1) * n).join(" ") === a) k++;
+      if (k === LOOP_REPEATS) return i + n;
+    }
+  return -1;
+}
+
+// Each phrase is decoded on its own (the server keeps no text between phrases). Urdu and English are
+// detected per phrase; anything else (Whisper often hears Urdu as Hindi) is redone as Urdu. If the
+// result loops, the other language is tried; if that loops too, the repeats are cut and flagged.
+async function transcribe(wav) {
+  const t0 = performance.now();
+  let r = await infer(wav, null);
+  if (r.lang !== "ur" && r.lang !== "en") r = await infer(wav, "ur");
+  let note = "";
+  if (loopStart(r.text) >= 0) {
+    const other = await infer(wav, r.lang === "ur" ? "en" : "ur");
+    if (loopStart(other.text) < 0) r = other;
+    else {
+      r.text = r.text.split(/\s+/).slice(0, loopStart(r.text)).join(" ") + " …";
+      note = "unclear audio: repeated words removed";
+    }
+  }
+  return { ...r, note, secs: (performance.now() - t0) / 1000 };
+}
+
+// ---- results ----
+let phrases = 0, audioTotal = 0, procTotal = 0;
+function updateSummary() {
+  $("summary").hidden = phrases === 0; $("empty").hidden = phrases > 0;
+  $("s-n").textContent = phrases;
+  $("s-audio").textContent = audioTotal < 60 ? audioTotal.toFixed(0) + " s" : (audioTotal / 60).toFixed(1) + " min";
+  $("s-speed").textContent = procTotal ? (audioTotal / procTotal).toFixed(1) + "× real time" : "–";
+}
+
+function addPhrase(wav, dur) {
+  phrases++; audioTotal += dur;
+  const card = document.createElement("article"); card.className = "phrase";
+  const takes = document.createElement("div");
+  const tools = document.createElement("div"); tools.className = "tools";
+  const url = URL.createObjectURL(wav); const audio = new Audio(url);
+  const play = btn("Play", () => { audio.currentTime = 0; audio.play(); });
+  const again = btn("Run with selected model", () => runTake(takes, wav, dur));
+  const copy = btn("Copy", () => navigator.clipboard.writeText([...takes.querySelectorAll(".text")].pop()?.textContent || ""));
+  tools.append(play, again, copy);
+  card.append(takes, tools);
+  $("list").prepend(card);
+  updateSummary();
+  runTake(takes, wav, dur);
+}
+
+function btn(label, fn) { const b = document.createElement("button"); b.className = "btn"; b.textContent = label; b.onclick = fn; return b; }
+
+function runTake(takes, wav, dur) {
+  const m = current();
+  const take = document.createElement("div"); take.className = "take";
+  const text = document.createElement("div"); text.className = "text pending"; text.textContent = "Waiting…";
+  const meta = document.createElement("div"); meta.className = "meta";
+  meta.innerHTML = `<span class="model"></span><span>${dur.toFixed(1)} s audio</span>`;
+  meta.querySelector(".model").textContent = m.label;
+  take.append(text, meta); takes.append(take);
+  serial(async () => {
+    try {
+      await loadModel(m);
+      text.textContent = "Transcribing…";
+      const r = await transcribe(wav);
+      procTotal += r.secs; updateSummary();
+      const en = r.lang === "en";
+      text.className = "text" + (en ? " ltr" : ""); text.dir = en ? "ltr" : "rtl"; text.lang = en ? "en" : "ur";
+      text.textContent = r.text || "(no speech heard)";
+      meta.insertAdjacentHTML("beforeend", `<span>${en ? "English" : "Urdu"}</span><span>took ${r.secs.toFixed(1)} s</span><span>${(dur / r.secs).toFixed(1)}× real time</span>`);
+      if (r.note) { const n = document.createElement("span"); n.className = "warn"; n.textContent = r.note; meta.append(n); }
+    } catch (e) {
+      text.className = "text err"; text.textContent = "Couldn't transcribe: " + e.message;
+    }
+  });
+}
+
+// ---- audio: phrase detection on 20 ms frames (energy with an adaptive noise floor) ----
+// Whisper always encodes a 30 s window, so each request costs about the same whether the phrase lasts
+// 2 s or 20 s. A short pause only ends a phrase once it is SOFT_MIN long; a long pause always does.
+const FRAME = 0.02, PRE_ROLL = 15, MIN_SPEECH = 25, MAX_FRAMES = 28 / FRAME;
+const SOFT_PAUSE = 30, SOFT_MIN = 6 / FRAME, END_SILENCE = 60;
+function makeSegmenter(onPhrase) {
+  let floor = 0.003, pre = [], cur = null, silent = 0, voiced = 0, run = 0;
+  return {
+    push(frame, level) {
+      const speech = level > Math.max(0.012, floor * 3.5);
+      if (!speech && !cur) floor = Math.max(0.002, floor * 0.95 + level * 0.05);
+      run = speech ? run + 1 : 0;
+      if (!cur) {
+        pre.push(frame); if (pre.length > PRE_ROLL) pre.shift();
+        if (run >= 3) { cur = pre.slice(); pre = []; silent = 0; voiced = run; }
+        return speech;
+      }
+      cur.push(frame);
+      if (speech) { silent = 0; voiced++; } else silent++;
+      const pauseEnds = silent >= END_SILENCE || (silent >= SOFT_PAUSE && cur.length >= SOFT_MIN);
+      if ((pauseEnds && voiced >= MIN_SPEECH) || cur.length >= MAX_FRAMES) this.flush(silent);
+      else if (silent >= END_SILENCE) { cur = null; silent = 0; voiced = 0; }  // too short to be a phrase (a cough, a click)
+      return speech;
+    },
+    flush(trailing = 0) {
+      if (cur && voiced >= MIN_SPEECH) onPhrase(cur.slice(0, cur.length - Math.max(0, trailing - 15)));
+      cur = null; silent = 0; voiced = 0;
+    },
+  };
+}
+
+function rms(a) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * a[i]; return Math.sqrt(s / a.length); }
+
+async function framesToWav(frames, rate) {
+  const n = frames.reduce((s, f) => s + f.length, 0);
+  const pcm = new Float32Array(n); let o = 0;
+  for (const f of frames) { pcm.set(f, o); o += f.length; }
+  let out = pcm;
+  if (rate !== SR) {
+    const off = new OfflineAudioContext(1, Math.ceil(n * SR / rate), SR);
+    const buf = off.createBuffer(1, n, rate); buf.copyToChannel(pcm, 0);
+    const src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+    out = (await off.startRendering()).getChannelData(0);
+  }
+  const view = new DataView(new ArrayBuffer(44 + out.length * 2));
+  const w = (o, s) => [...s].forEach((c, i) => view.setUint8(o + i, c.charCodeAt(0)));
+  w(0, "RIFF"); view.setUint32(4, 36 + out.length * 2, true); w(8, "WAVEfmt ");
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, SR, true); view.setUint32(28, SR * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  w(36, "data"); view.setUint32(40, out.length * 2, true);
+  for (let i = 0; i < out.length; i++) view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, out[i])) * 0x7fff, true);
+  return { wav: new Blob([view], { type: "audio/wav" }), dur: out.length / SR };
+}
+
+// ---- microphone ----
+const WORKLET = `class Tap extends AudioWorkletProcessor {
+  constructor() { super(); this.buf = []; this.n = Math.round(sampleRate * ${FRAME}); }
+  process(inputs) {
+    const ch = inputs[0][0]; if (!ch) return true;
+    for (let i = 0; i < ch.length; i++) { this.buf.push(ch[i]); if (this.buf.length === this.n) { this.port.postMessage(new Float32Array(this.buf)); this.buf = []; } }
+    return true;
+  }
+} registerProcessor("tap", Tap);`;
+let mic = null;
+
+async function startMic() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } });
+    const ctx = new AudioContext();
+    await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" })));
+    const src = ctx.createMediaStreamSource(stream);
+    const tap = new AudioWorkletNode(ctx, "tap");
+    const mute = ctx.createGain(); mute.gain.value = 0;
+    src.connect(tap).connect(mute).connect(ctx.destination);
+    const seg = makeSegmenter(async (frames) => { const { wav, dur } = await framesToWav(frames, ctx.sampleRate); addPhrase(wav, dur); });
+    tap.port.onmessage = (e) => {
+      const level = rms(e.data);
+      const speech = seg.push(e.data, level);
+      $("meter").firstElementChild.style.width = Math.min(100, level * 600) + "%";
+      $("meter").classList.toggle("speech", speech);
+    };
+    mic = { stream, ctx, seg };
+    $("rec").classList.add("on"); $("rec-label").textContent = "Stop"; $("notice").hidden = true;
+  } catch (e) {
+    showNotice(location.hostname === "127.0.0.1" || location.hostname === "localhost"
+      ? "The microphone isn't available here (" + e.message + "). Open " + location.href + " in Chrome or Safari and allow the microphone."
+      : "The microphone needs this page on localhost: " + e.message);
+  }
+}
+
+function stopMic() {
+  if (!mic) return;
+  mic.seg.flush();
+  mic.stream.getTracks().forEach((t) => t.stop());
+  mic.ctx.close(); mic = null;
+  $("rec").classList.remove("on"); $("rec-label").textContent = "Start";
+  $("meter").firstElementChild.style.width = "0"; $("meter").classList.remove("speech");
+}
+
+function showNotice(msg) { $("notice").textContent = msg; $("notice").hidden = false; }
+
+$("rec").onclick = () => (mic ? stopMic() : startMic());
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && !["INPUT", "SELECT", "TEXTAREA", "BUTTON"].includes(document.activeElement.tagName) && !$("rec").disabled) {
+    e.preventDefault(); mic ? stopMic() : startMic();
+  }
+});
+
+// ---- audio files: same phrase detection, run offline ----
+$("file").onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const ctx = new AudioContext();
+    const buf = await ctx.decodeAudioData(await f.arrayBuffer()); ctx.close();
+    const ch = buf.getChannelData(0), n = Math.round(buf.sampleRate * FRAME);
+    const found = [];
+    const seg = makeSegmenter((frames) => found.push(frames));
+    for (let i = 0; i + n <= ch.length; i += n) { const fr = ch.slice(i, i + n); seg.push(fr, rms(fr)); }
+    seg.flush();
+    if (!found.length) return showNotice("No speech found in " + f.name + ".");
+    for (const frames of found) { const { wav, dur } = await framesToWav(frames, buf.sampleRate); addPhrase(wav, dur); }
+  } catch (err) { showNotice("Couldn't read " + f.name + ": " + err.message); }
+};
+
+// ---- model picker, fonts, summary buttons ----
+function current() { return models.find((m) => m.path === $("model").value) || models[0]; }
+$("model").onchange = () => { store.set("model", $("model").value); serial(() => loadModel(current()).catch(() => {})); };
+for (const b of $("font").children) b.onclick = () => setFont(b.dataset.v);
+function setFont(v) { store.set("font", v); document.documentElement.style.setProperty("--font", v === "urdu" ? "var(--urdu)" : "var(--naskh)");
+  for (const b of $("font").children) b.classList.toggle("on", b.dataset.v === v); }
+$("copy-all").onclick = () => navigator.clipboard.writeText([...document.querySelectorAll(".phrase")].reverse()
+  .map((p) => [...p.querySelectorAll(".text")].pop()?.textContent || "").join("\n"));
+$("clear").onclick = () => { document.querySelectorAll(".phrase").forEach((p) => p.remove()); phrases = audioTotal = procTotal = 0; updateSummary(); };
+
+(async () => {
+  setFont(store.get("font", "naskh"));
+  try {
+    models = await (await fetch("models.json")).json();
+  } catch { setStatus("Server not running", "err"); return; }
+  for (const m of models) { const o = document.createElement("option"); o.value = m.path; o.textContent = m.label; $("model").append(o); }
+  loaded = models.find((m) => m.loaded) || null;
+  const saved = store.get("model", null);
+  $("model").value = models.some((m) => m.path === saved) ? saved : (loaded || models[0]).path;
+  if (loaded) setStatus(loaded.label + " ready", "ok");
+  serial(() => loadModel(current()).catch(() => {}));
+  $("rec").disabled = false;
+  updateSummary();
+})();
+</script>
+</body>
+</html>

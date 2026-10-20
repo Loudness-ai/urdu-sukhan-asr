@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this model or code, please cite the technical report."
+title: "Urdu Sukhan ASR"
+authors:
+  - family-names: Shehzad
+    given-names: Asad
+    affiliation: Loudness.ai
+repository-code: "https://github.com/Loudness-ai/urdu-sukhan-asr"
+url: "https://huggingface.co/Loudness-ai/urdu-sukhan-asr-v1"
+version: 1.0.0
+license: CC-BY-NC-4.0
+date-released: 2026-10-21
+keywords:
+  - speech recognition
+  - Urdu
+  - Whisper
+  - code-switching
+preferred-citation:
+  type: report
+  title: "Urdu Sukhan ASR: Accurate Urdu Speech Recognition at Half the Size of Whisper large-v3"
+  url: "https://loudness.ai/research/urdu-speech-recognition-whisper/"
+  authors:
+    - family-names: Shehzad
+      given-names: Asad
+  institution:
+    name: Loudness.ai
+  number: LA-RB-2026-004
+  year: 2026

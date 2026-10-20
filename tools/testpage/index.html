@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Urdu CPU Test</title>
+<style>
+:root {
+  --bg: #f6f6f3; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #e2e2dc;
+  --accent: #1f6f5c; --accent-ink: #ffffff; --warn: #a14a12; --good: #1f6f5c; --chip: #eef3f1;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151614; --card: #1e1f1c; --ink: #ecece6; --muted: #a2a29a; --line: #33352f;
+          --accent: #4fb39a; --accent-ink: #0d1411; --warn: #f0a46a; --good: #6fd0b5; --chip: #24302c; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+       font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+main { max-width: 1060px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 0 0 10px; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+label.chk { display: inline-flex; gap: 6px; align-items: center; background: var(--chip); padding: 5px 10px; border-radius: 999px; }
+select, input[type=file] { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; max-width: 100%; }
+button { font: inherit; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+.status { color: var(--muted); margin: 6px 0 10px; }
+.err { color: var(--warn); }
+.ur { font-size: 17px; line-height: 1.9; }
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--accent); }
+.clip { border-top: 1px solid var(--line); padding: 10px 0; }
+.clip .ref { color: var(--muted); }
+.tag { font-size: 12px; color: var(--muted); }
+audio { height: 32px; max-width: 100%; }
+.note { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Urdu speech-to-text: CPU test</h1>
+  <p class="sub" id="hdr">Loading…</p>
+
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="row" id="models"></div>
+    <div class="row" style="margin-top:10px">
+      <span>CPU threads <select id="threads"></select></span>
+      <span>Language <select id="lang"><option value="auto">Auto-detect (as the app)</option><option value="ur">Urdu</option>
+        <option value="en">English</option></select></span>
+      <label class="chk"><input type="checkbox" id="vad"> Voice detector (Silero) before the model</label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <span style="flex:1 1 420px">Names and words to prefer (optional)
+        <input id="prompt" dir="auto" placeholder="e.g. اسد، شایان، تانیا" style="width:100%;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px"></span>
+    </div>
+    <p class="note">Same decoding as the app: whisper.cpp v1.9.5, beam 5, temperature fallback, no timestamps.
+      Runs on this server's CPU only. Times exclude model loading (shown apart), as the app keeps the model loaded.
+      Auto-detect costs one extra encoder pass per clip (whisper.cpp encodes once just to guess the language), so a
+      fixed language is roughly twice as fast on short clips. q4_0 is usually the fastest on x86 servers.</p>
+  </div>
+
+  <div class="card">
+    <h2>Record live</h2>
+    <p class="note">Speak into your microphone; when you press Stop, the recording is transcribed by the chosen models
+      (up to 5 minutes; the browser's noise suppression and volume levelling are off, so the model hears the raw mic).
+      The recording is deleted from the server straight after.</p>
+    <div class="row"><button id="rec">● Record</button><span id="rec-time" class="tag"></span></div>
+    <p class="note" id="rec-note"></p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Your audio</h2>
+      <p class="note">Any file your browser can play (m4a, mp3, wav, ogg, video files). It is converted to 16 kHz mono
+        in the browser, transcribed, and deleted from the server straight after.</p>
+      <div class="row"><input type="file" id="file" accept="audio/*,video/*"><button id="go-file">Transcribe</button></div>
+    </div>
+    <div class="card">
+      <h2>Test clips with human transcripts</h2>
+      <p class="note">Held-out test clips (never trained on), plus no-speech clips. Shows words and letters wrong per set.</p>
+      <div class="row"><select id="set"></select><button id="go-set">Run</button></div>
+    </div>
+  </div>
+
+  <div id="jobs"></div>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+let INFO = null;
+
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function fmt(s) { return s >= 60 ? `${Math.floor(s / 60)} min ${Math.round(s % 60)} s` : `${(+s).toFixed(1)} s`; }
+
+async function init() {
+  INFO = await (await fetch("api/info")).json();
+  $("#hdr").textContent = `Server CPU: ${INFO.cpu}, ${INFO.cores} threads available.`;
+  $("#models").innerHTML = INFO.models.map((m) =>
+    `<label class="chk"><input type="checkbox" value="${m.id}" ${m.id.startsWith("teacher") ? "checked" : ""}> ${esc(m.label)} <span class="tag">${m.size_mb} MB</span></label>`).join("");
+  const t = [4, 8, 16, INFO.cores].filter((v, i, a) => v <= INFO.cores && a.indexOf(v) === i);
+  $("#threads").innerHTML = t.map((v) => `<option ${v === INFO.cores ? "selected" : ""}>${v}</option>`).join("");
+  const total = INFO.sets.reduce((a, s) => a + s.clips, 0), secs = INFO.sets.reduce((a, s) => a + s.seconds, 0);
+  $("#set").innerHTML = `<option value="all">All sets (${total} clips, ${fmt(secs)})</option>` +
+    INFO.sets.map((s) => `<option value="${esc(s.name)}">${esc(s.name)} (${s.clips} clips, ${fmt(s.seconds)})</option>`).join("");
+}
+
+function opts() {
+  const models = [...document.querySelectorAll("#models input:checked")].map((i) => i.value);
+  return `models=${models.join(",")}&threads=${$("#threads").value}&vad=${$("#vad").checked ? 1 : 0}&lang=${$("#lang").value}&prompt=${encodeURIComponent($("#prompt").value)}`;
+}
+
+async function toWav16k(file) {
+  const buf = await file.arrayBuffer();
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const decoded = await ctx.decodeAudioData(buf);
+  ctx.close();
+  const off = new OfflineAudioContext(1, Math.ceil(decoded.duration * 16000), 16000);
+  const src = off.createBufferSource();
+  src.buffer = decoded; src.connect(off.destination); src.start();
+  const pcm = (await off.startRendering()).getChannelData(0);
+  const out = new DataView(new ArrayBuffer(44 + pcm.length * 2));
+  const w = (o, s) => [...s].forEach((c, i) => out.setUint8(o + i, c.charCodeAt(0)));
+  w(0, "RIFF"); out.setUint32(4, 36 + pcm.length * 2, true); w(8, "WAVE"); w(12, "fmt ");
+  out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+  out.setUint32(24, 16000, true); out.setUint32(28, 32000, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true);
+  w(36, "data"); out.setUint32(40, pcm.length * 2, true);
+  for (let i = 0; i < pcm.length; i++) out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 32767, true);
+  return new Blob([out], { type: "audio/wav" });
+}
+
+function card(title, audioUrl) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.innerHTML = `<h2>${esc(title)}</h2>` + (audioUrl ? `<audio controls src="${audioUrl}"></audio>` : "") +
+    `<div class="status">Starting…</div><div class="body"></div>`;
+  $("#jobs").prepend(el);
+  return el;
+}
+
+async function poll(jid, el) {
+  const t0 = Date.now();
+  for (;;) {
+    const job = await (await fetch(`api/job/${jid}`)).json();
+    const st = el.querySelector(".status");
+    if (job.state === "queued") st.textContent = `Waiting: ${job.queue_ahead} job(s) ahead.`;
+    else if (job.state === "running") st.textContent = `Running ${job.progress} · ${fmt((Date.now() - t0) / 1000)}`;
+    else if (job.state === "error") { st.innerHTML = `<span class="err">Failed: ${esc(job.error)}</span>`; return; }
+    else { st.textContent = `Done in ${fmt((job.finished - job.started))} · ${job.threads} threads · language ${job.lang}${job.vad ? " · voice detector on" : ""}${job.prompt ? " · word list: " + job.prompt : ""}`; render(job, el); return; }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
+function render(job, el) {
+  const ids = job.models.filter((m) => job.results[m]);
+  const R = ids.map((m) => job.results[m]);
+  let h = `<div class="scroll"><table><tr><th>Model</th><th class="num">Size</th><th class="num">Processing</th>
+    <th class="num">Audio</th><th class="num">× real time</th><th class="num">Model load</th></tr>` +
+    R.map((r) => `<tr><td>${esc(r.label)}</td><td class="num">${r.size_mb} MB</td><td class="num">${fmt(r.seconds)}</td>
+      <td class="num">${fmt(r.audio_seconds)}</td><td class="num"><b>${r.x_realtime ?? "–"}×</b></td><td class="num">${fmt(r.load_seconds)}</td></tr>`).join("") +
+    `</table></div>`;
+  if (job.kind === "samples") {
+    const sets = Object.keys(R[0].sets);
+    h += `<h2 style="margin-top:16px">Accuracy</h2><div class="scroll"><table><tr><th>Test set</th>` +
+      R.map((r) => `<th class="num">${esc(r.label)}</th>`).join("") + `</tr>` +
+      sets.map((s) => `<tr><td>${esc(s)} <span class="tag">(${R[0].sets[s].clips})</span></td>` + R.map((r) => {
+        const c = r.sets[s];
+        const loops = c.loops ? ` · <span class="err">${c.loops} loop${c.loops > 1 ? "s" : ""}</span>` : "";
+        return c.nospeech ? `<td class="num">any text ${c.any_text}/${c.clips} · 2+ words ${c.two_plus_words}/${c.clips}${loops}</td>`
+                          : `<td class="num">${c.wer}% words · ${c.cer}% letters${loops}</td>`;
+      }).join("") + `</tr>`).join("") +
+      `</table></div><p class="note">Lower is better. "Words wrong" after ignoring punctuation, diacritics, digit forms and hamza variants.
+      On no-speech clips the right answer is nothing; by default whisper.cpp must write at least one word, so "2+ words" counts invented text.</p>`;
+  }
+  h += `<details ${job.kind === "upload" ? "open" : ""}><summary>${job.kind === "upload" ? "Transcripts" : "Every clip"}</summary>` +
+    job.items.map((it, k) => `<div class="clip"><div class="tag">${esc(it.set)} · ${fmt(it.duration)}</div>` +
+      (job.kind === "samples" ? `<audio controls preload="none" src="sample/${encodeURIComponent(it.file)}"></audio>
+        <div class="ur ref" dir="auto">${it.text ? esc(it.text) : "(no speech)"}</div>` : `<div class="tag">${esc(it.file)}</div>`) +
+      R.map((r) => `<div><span class="tag">${esc(r.label)}</span><div class="ur" dir="auto">${esc(r.texts[k]) || '<span class="tag">(empty)</span>'}</div></div>`).join("") +
+      `</div>`).join("") + `</details>`;
+  el.querySelector(".body").innerHTML = h;
+}
+
+async function submit(blob, name, title) {
+  const el = card(title, URL.createObjectURL(blob));
+  try {
+    el.querySelector(".status").textContent = "Converting to 16 kHz in the browser…";
+    const wav = await toWav16k(blob);
+    el.querySelector(".status").textContent = "Uploading…";
+    const r = await (await fetch(`api/upload?name=${encodeURIComponent(name)}&${opts()}`, { method: "POST", body: wav })).json();
+    if (r.error) throw new Error(r.error);
+    poll(r.job, el);
+  } catch (e) { el.querySelector(".status").innerHTML = `<span class="err">${esc(e.message || e)}</span>`; }
+}
+
+$("#go-file").onclick = () => {
+  const f = $("#file").files[0];
+  if (!f) return alert("Choose an audio file first.");
+  submit(f, f.name, `Your audio: ${f.name}`);
+};
+
+let rec = null, timer = null;
+$("#rec").onclick = async () => {
+  if (rec && rec.state === "recording") { rec.stop(); return; }
+  if (!window.isSecureContext || !navigator.mediaDevices) {
+    const u = `https://${location.hostname}:${INFO.https_port}${location.pathname}`;
+    $("#rec-note").innerHTML = `Browsers only allow the microphone on https pages. Open <a href="${u}">${u}</a>
+      (your browser will warn that the certificate is self-signed: choose Advanced, then Proceed).`;
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: false,
+      noiseSuppression: false, autoGainControl: false } });
+  } catch (e) { $("#rec-note").textContent = `Microphone not available: ${e.message || e}`; return; }
+  const chunks = [];
+  rec = new MediaRecorder(stream);
+  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    clearInterval(timer);
+    $("#rec").textContent = "● Record";
+    const name = `recording ${new Date().toLocaleTimeString()}`;
+    submit(new Blob(chunks, { type: rec.mimeType }), name, `Live: ${name}`);
+  };
+  const t0 = Date.now();
+  rec.start();
+  $("#rec").textContent = "■ Stop";
+  $("#rec-note").textContent = "";
+  timer = setInterval(() => {
+    const s = (Date.now() - t0) / 1000;
+    $("#rec-time").textContent = `recording ${fmt(s)}`;
+    if (s >= 300) rec.stop();
+  }, 250);
+};
+
+$("#go-set").onclick = async () => {
+  const s = $("#set").value;
+  const el = card(`Test clips: ${s === "all" ? "all sets" : s}`);
+  const r = await (await fetch(`api/samples?set=${encodeURIComponent(s)}&${opts()}`, { method: "POST" })).json();
+  if (r.error) { el.querySelector(".status").innerHTML = `<span class="err">${esc(r.error)}</span>`; return; }
+  poll(r.job, el);
+};
+
+init();
+</script>
+</body>
+</html>

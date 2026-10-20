@@ -1,0 +1,36 @@
+diff --git a/examples/cli/cli.cpp b/examples/cli/cli.cpp
+index b015319..8843854 100644
+--- a/examples/cli/cli.cpp
++++ b/examples/cli/cli.cpp
+@@ -79,6 +79,7 @@ struct whisper_params {
+     bool flash_attn      = true;
+     int32_t gpu_device   = 0;
+     bool suppress_nst    = false;
++    bool no_suppress_blank = false;
+     bool carry_initial_prompt = false;
+ 
+     std::string language  = "en";
+@@ -208,6 +209,7 @@ static bool whisper_params_parse(int argc, char ** argv, whisper_params & params
+         else if (arg == "-fa"   || arg == "--flash-attn")           { params.flash_attn      = true; }
+         else if (arg == "-nfa"  || arg == "--no-flash-attn")        { params.flash_attn      = false; }
+         else if (arg == "-sns"  || arg == "--suppress-nst")         { params.suppress_nst    = true; }
++        else if (arg == "-nsb"  || arg == "--no-suppress-blank")    { params.no_suppress_blank = true; }
+         else if (                  arg == "--suppress-regex")       { params.suppress_regex  = ARGV_NEXT; }
+         else if (                  arg == "--grammar")              { params.grammar         = ARGV_NEXT; }
+         else if (                  arg == "--grammar-rule")         { params.grammar_rule    = ARGV_NEXT; }
+@@ -291,6 +293,7 @@ static void whisper_print_usage(int /*argc*/, char ** argv, const whisper_params
+     fprintf(stderr, "  -fa,       --flash-attn           [%-7s] enable flash attention\n",                         params.flash_attn ? "true" : "false");
+     fprintf(stderr, "  -nfa,      --no-flash-attn        [%-7s] disable flash attention\n",                        params.flash_attn ? "false" : "true");
+     fprintf(stderr, "  -sns,      --suppress-nst         [%-7s] suppress non-speech tokens\n",                     params.suppress_nst ? "true" : "false");
++    fprintf(stderr, "  -nsb,      --no-suppress-blank    [%-7s] allow an empty result (no forced first word on silence)\n", params.no_suppress_blank ? "true" : "false");
+     fprintf(stderr, "  --suppress-regex REGEX            [%-7s] regular expression matching tokens to suppress\n", params.suppress_regex.c_str());
+     fprintf(stderr, "  --grammar GRAMMAR                 [%-7s] GBNF grammar to guide decoding\n",                 params.grammar.c_str());
+     fprintf(stderr, "  --grammar-rule RULE               [%-7s] top-level GBNF grammar rule name\n",               params.grammar_rule.c_str());
+@@ -1266,6 +1269,7 @@ int main(int argc, char ** argv) {
+             wparams.no_timestamps    = params.no_timestamps;
+ 
+             wparams.suppress_nst     = params.suppress_nst;
++            wparams.suppress_blank   = !params.no_suppress_blank;
+ 
+             wparams.vad            = params.vad;
+             wparams.vad_model_path = params.vad_model.c_str();

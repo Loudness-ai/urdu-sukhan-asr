@@ -1,0 +1,17 @@
+__pycache__/
+.venv/
+data/
+models/
+projects/
+results/*/
+tools/openai-whisper/
+tools/whispercpp/
+tools/testpage/samples/
+tools/testpage/samples.json
+tools/testpage/tls/
+tools/testpage/.token
+live/models.json
+*.wav
+*.flac
+*.bin
+*.safetensors
