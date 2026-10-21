@@ -7,6 +7,10 @@ authors:
     affiliation: Loudness.ai
 repository-code: "https://github.com/Loudness-ai/urdu-sukhan-asr"
 url: "https://huggingface.co/Loudness-ai/urdu-sukhan-asr-v1"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23518703
+    description: "The technical report LA-RB-2026-004 on Zenodo"
 version: 1.0.0
 license: CC-BY-NC-4.0
 date-released: 2026-10-21
@@ -26,3 +30,4 @@ preferred-citation:
     name: Loudness.ai
   number: LA-RB-2026-004
   year: 2026
+  doi: 10.5281/zenodo.23518703

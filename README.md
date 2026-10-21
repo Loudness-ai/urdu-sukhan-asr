@@ -7,6 +7,7 @@
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Loudness-ai/urdu-sukhan-asr/blob/main/notebooks/urdu_sukhan_asr_demo.ipynb)
 [![Licence: CC BY-NC 4.0](https://img.shields.io/badge/licence-CC%20BY--NC%204.0-lightgrey)](LICENSE)
 [![Technical report](https://img.shields.io/badge/report-LA--RB--2026--004-green)](https://loudness.ai/research/urdu-speech-recognition-whisper/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23518703.svg)](https://doi.org/10.5281/zenodo.23518703)
 
 **Urdu Sukhan ASR** is an Urdu speech-to-text model by [Loudness.ai](https://loudness.ai) that also transcribes
 English and speech that switches between Urdu and English. This repository holds everything behind it: ready-to-run
@@ -22,7 +23,7 @@ approved on request.
 
 **Know before you use it**: names are its weakest point (11 of 23 spelled right in our test chapter); see [Limitations](#limitations) and what the [next version](#next-version) will fix.
 
-**On loudness.ai**: [technical report](https://loudness.ai/research/urdu-speech-recognition-whisper/) (LA-RB-2026-004) · [model page](https://loudness.ai/developers/urdu-sukhan-asr/) · [install guide](https://loudness.ai/developers/guides/install-urdu-sukhan-asr/) · en español: [informe](https://loudness.ai/es/research/urdu-speech-recognition-whisper/), [modelo](https://loudness.ai/es/developers/urdu-sukhan-asr/), [guía](https://loudness.ai/es/developers/guides/install-urdu-sukhan-asr/).
+**On loudness.ai**: [technical report](https://loudness.ai/research/urdu-speech-recognition-whisper/) (LA-RB-2026-004) · archived on [Zenodo](https://doi.org/10.5281/zenodo.23518703) (doi:10.5281/zenodo.23518703) · [model page](https://loudness.ai/developers/urdu-sukhan-asr/) · [install guide](https://loudness.ai/developers/guides/install-urdu-sukhan-asr/) · en español: [informe](https://loudness.ai/es/research/urdu-speech-recognition-whisper/), [modelo](https://loudness.ai/es/developers/urdu-sukhan-asr/), [guía](https://loudness.ai/es/developers/guides/install-urdu-sukhan-asr/).
 
 ## Results
 
@@ -390,6 +391,7 @@ If you use this model or code, please cite the technical report:
   institution = {Loudness.ai},
   number      = {LA-RB-2026-004},
   year        = {2026},
+  doi         = {10.5281/zenodo.23518703},
   url         = {https://loudness.ai/research/urdu-speech-recognition-whisper/}
 }
 ```
